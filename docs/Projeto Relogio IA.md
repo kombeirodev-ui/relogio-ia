@@ -163,3 +163,9 @@ Esta é uma referência de interação para o futuro desenho de UX, não uma sol
 O usuário esclareceu que anime era apenas um exemplo. O produto deve permitir skins e imagens de estilos variados, conforme a preferência de cada pessoa. A referência Winamp diz respeito à usabilidade compacta e personalizável, sem impor uma estética específica.
 
 
+
+
+## Prioridade confirmada — programa muito leve
+
+O usuário reforçou que o aplicativo em si deve ser o mais leve possível, independentemente do custo dos wallpapers escolhidos. Componentes, trabalho próprio e complexidade estão detalhados no documento Componentes e leveza. Não há metas ou resultados medidos ainda.
+
