@@ -1,6 +1,9 @@
 base/
 node_modules/
 target/
+dist/
+.vite/
+work/
 .env
 .env.*
 
