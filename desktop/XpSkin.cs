@@ -1,0 +1,35 @@
+using System;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Collections.Generic;
+using System.Reflection;
+
+// Original classic blue chrome and hardware icons, drawn procedurally.
+public static class XpSkin {
+    public static void Sensor(Graphics g,string key,RectangleF area){PublicArt.Hardware(g,key,area);}
+    static readonly Color Blue=Color.FromArgb(0,85,229), Ink=Color.FromArgb(0,51,153), Cream=Color.FromArgb(236,233,216);
+    public static Region WindowRegion(int width,int height){using(var p=new GraphicsPath()){p.AddArc(0,0,12,12,180,90);p.AddLine(6,0,width-6,0);p.AddArc(width-12,0,12,12,270,90);p.AddLine(width,6,width,height);p.AddLine(width,height,0,height);p.CloseFigure();return new Region(p);}}
+    public static int Height(ClockSettings s){return 36+(s.ShowClock?76:0)+25+2*(s.Expanded?76:58)+(s.Metrics.Count>0?27+s.Metrics.Count*32:0)+31;}
+    static void Fill(Graphics g,Color c,RectangleF r){PaintTools.Fill(g,c,r);}
+    static void Gradient(Graphics g,RectangleF r,Color top,Color bottom){using(var b=new LinearGradientBrush(r,top,bottom,90f))g.FillRectangle(b,r);}
+    static void Edge(Graphics g,RectangleF r,Color color){using(var p=new Pen(color))g.DrawRectangle(p,r.X,r.Y,r.Width,r.Height);}
+    static string Font(ClockSettings s){return s.Font=="mono"?"Consolas":s.Font=="serif"?"Georgia":s.Font=="condensed"?"Impact":s.Font=="rounded"?"Trebuchet MS":"Tahoma";}
+    static void Text(Graphics g,string value,float size,Color color,RectangleF r,ClockSettings s,bool bold=false,bool center=false){using(var f=EmbeddedFonts.Make(Font(s),size,bold?FontStyle.Bold:FontStyle.Regular))using(var b=new SolidBrush(color))using(var format=new StringFormat {Trimming=StringTrimming.EllipsisCharacter,FormatFlags=StringFormatFlags.NoWrap,LineAlignment=StringAlignment.Center,Alignment=center?StringAlignment.Center:StringAlignment.Near})g.DrawString(value,f,b,r,format);}
+    static string Percent(double? value){return value.HasValue?value.Value.ToString("0.#")+"%":"—";}
+    static void Section(Graphics g,int y,string title,ClockSettings s){Gradient(g,new RectangleF(10,y,280,21),Color.White,Color.FromArgb(199,215,249));Text(g,title,11,Ink,new RectangleF(16,y+1,266,19),s,true);}
+    static void Progress(Graphics g,RectangleF r,double? used){Gradient(g,r,Color.FromArgb(225,225,213),Color.White);Edge(g,r,Color.FromArgb(146,157,146));if(!used.HasValue)return;float extent=(float)((r.Width-6)*Math.Max(0,Math.Min(100,used.Value))/100);var state=g.Save();g.SetClip(new RectangleF(r.X+3,r.Y+3,extent,r.Height-6));for(float x=r.X+3;x<r.Right-3;x+=9)Gradient(g,new RectangleF(x,r.Y+3,6,r.Height-6),Color.FromArgb(173,221,105),Color.FromArgb(61,153,73));g.Restore(state);}
+    public static Bitmap ControlIcon(string kind){var image=new Bitmap(21,21);using(var g=Graphics.FromImage(image)){Gradient(g,new RectangleF(0,0,21,21),kind=="close"?Color.FromArgb(234,145,112):Color.FromArgb(117,168,239),kind=="close"?Color.FromArgb(176,61,51):Color.FromArgb(31,81,168));Edge(g,new RectangleF(1,1,18,18),Color.FromArgb(210,232,255));using(var p=new Pen(Color.White,1.5f)){if(kind=="close"){g.DrawLine(p,6,6,14,14);g.DrawLine(p,14,6,6,14);}else if(kind=="expand")g.DrawRectangle(p,5,5,10,10);else if(kind=="minimize")g.DrawLine(p,5,14,15,14);else{g.DrawEllipse(p,6,6,8,8);g.DrawLine(p,4,10,16,10);g.DrawLine(p,10,4,10,16);}}}return image;}
+    public static void Draw(Graphics g,ClockSettings s,Theme t,UsageResult u,HardwareSample hardware,Image atlas,bool photo,bool reading,string error){
+        int h=Height(s);if(!photo)Fill(g,Blue,new RectangleF(0,0,300,h));else{Fill(g,Blue,new RectangleF(0,0,3,h));Fill(g,Blue,new RectangleF(297,0,3,h));Fill(g,Blue,new RectangleF(0,h-3,300,3));}Fill(g,photo?Color.FromArgb(210,Cream):Cream,new RectangleF(3,27,294,h-30));
+        Gradient(g,new RectangleF(0,0,300,29),Color.FromArgb(84,155,236),Color.FromArgb(18,66,161));PaintTools.Line(g,Color.FromArgb(167,208,255),6,2,293,2);
+        // Small monitor emblem, drawn for this widget rather than copied Windows artwork.
+        Fill(g,Color.FromArgb(222,235,249),new RectangleF(7,7,15,11));Fill(g,Color.FromArgb(45,138,221),new RectangleF(9,9,11,7));PaintTools.Line(g,Color.White,11,21,19,21);PaintTools.Line(g,Color.White,15,18,15,21);
+        PaintTools.Text(g,"Relógio IA",12,Color.FromArgb(0,40,135),29,8,"Trebuchet MS",FontStyle.Bold);PaintTools.Text(g,"Relógio IA",12,Color.White,28,7,"Trebuchet MS",FontStyle.Bold);
+        int y=35;
+        if(s.ShowClock){Fill(g,Color.White,new RectangleF(10,y,180,64));Edge(g,new RectangleF(10,y,180,64),Color.FromArgb(127,157,185));if(s.ClockStyle=="text")Text(g,DateTime.Now.ToString("HH:mm"),36,t.Accent,new RectangleF(15,y+4,170,56),s,false,true);else PaintTools.Digits(g,DateTime.Now.ToString("HH:mm"),new RectangleF(19,y+11,161,43),t.Accent,s.ClockStyle,atlas,s.TintDigits,Font(s));Fill(g,Color.White,new RectangleF(198,y,92,64));Edge(g,new RectangleF(198,y,92,64),Color.FromArgb(127,157,185));Gradient(g,new RectangleF(199,y+1,90,21),Color.FromArgb(255,239,209),Color.FromArgb(255,194,105));Text(g,DateTime.Now.ToString("dddd"),11,Color.FromArgb(97,55,0),new RectangleF(200,y+1,88,21),s,false,true);Text(g,DateTime.Now.ToString("dd/MM"),20,Ink,new RectangleF(200,y+24,88,35),s,true,true);y+=76;}
+        Section(g,y,"Consumo do "+u.Provider,s);y+=25;
+        for(int i=0;i<2;i++){int row=s.Expanded?76:58;var q=u.Windows.Count>i?u.Windows[i]:null;Fill(g,photo?Color.FromArgb(225,Color.White):Color.White,new RectangleF(10,y,280,row-6));Edge(g,new RectangleF(10,y,280,row-6),Color.FromArgb(172,168,153));Text(g,q==null?(i==0?"5 horas":"Semanal"):q.Label,12,t.Text,new RectangleF(18,y+4,170,23),s,true);Text(g,q==null?"—":Percent(q.Used)+" usado",12,Ink,new RectangleF(188,y+4,94,23),s,false,true);Progress(g,new RectangleF(19,y+29,262,19),q==null?(double?)null:q.Used);if(s.Expanded)Text(g,q==null?"Aguardando leitura":q.ResetText(DateTime.UtcNow),11,t.Muted,new RectangleF(18,y+47,264,18),s);y+=row;}
+        if(s.Metrics.Count>0){Section(g,y,"Meu computador",s);y+=27;foreach(string key in s.Metrics){Fill(g,photo?Color.FromArgb(220,Color.White):Color.White,new RectangleF(10,y,280,30));Sensor(g,key,new RectangleF(14,y+2,26,26));Text(g,key=="disk"?hardware.DiskName:key.ToUpperInvariant(),11,t.Text,new RectangleF(44,y+3,65,23),s);double? value;hardware.Values.TryGetValue(key,out value);Progress(g,new RectangleF(113,y+6,108,19),value);Text(g,Percent(value),11,Ink,new RectangleF(229,y+3,54,23),s,false,true);y+=32;}}
+        Fill(g,Cream,new RectangleF(5,h-27,290,22));PaintTools.Line(g,Color.FromArgb(172,168,153),7,h-27,292,h-27);string status=reading?"Consultando "+u.Provider+"…":error!=""?(u.At.HasValue?"Leitura anterior · F5 atualiza":"Sem leitura · F5 tenta novamente"):u.At.HasValue?"Lido "+u.At.Value.ToLocalTime().ToString("HH:mm:ss")+" · "+s.RefreshSeconds+" s":"Aguardando leitura da conta";Text(g,status,10,t.Muted,new RectangleF(11,h-24,267,18),s);for(int i=0;i<3;i++)PaintTools.Line(g,Color.FromArgb(128,128,128),287-i*4,h-7,293,h-13-i*4);
+    }
+}
