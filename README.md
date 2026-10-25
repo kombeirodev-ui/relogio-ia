@@ -71,3 +71,7 @@ O código próprio é distribuído sob a licença [MIT](LICENSE). Marcas e mater
 ## Sobreposição em jogos
 
 Para interagir com o relógio durante o jogo, prefira janela sem bordas. Em tela cheia exclusiva, clicar em outra janela pode retirar o foco e minimizar ou interromper o jogo; o comportamento depende do jogo e esse modo não foi validado.
+
+## Roadmap
+
+Versões Linux e macOS estão planejadas, sem implementação nesta beta. Veja as etapas e a documentação original consultada em [ROADMAP.md](ROADMAP.md). A versão macOS dependerá de validação em Mac real antes de declarar suporte.
